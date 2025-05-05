@@ -13,10 +13,6 @@ class Wagon
     validate!
   end
 
-  def each_wagon(&block)
-    @wagons.each(&block)
-  end
-
   private
 
   def validate!

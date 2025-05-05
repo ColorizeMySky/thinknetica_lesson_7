@@ -87,6 +87,9 @@ class Train
     move_to('backward')
   end
 
+  def each_wagon(&block)
+    @wagons.each(&block)
+  end
 
   private
 

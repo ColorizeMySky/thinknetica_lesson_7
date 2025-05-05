@@ -68,6 +68,26 @@ class Main
     retry
   end
 
+  def create_wagon
+      puts "Выберите тип вагона (1 - пассажирский, 2 - грузовой): "
+      type = gets.chomp.to_i
+
+      if type == 1
+        puts "Введите количество мест: "
+        seats = gets.chomp.to_i
+        wagon = PassengerWagon.new(seats)
+      else
+        puts "Введите объем вагона: "
+        volume = gets.chomp.to_f
+        wagon = CargoWagon.new(volume)
+      end
+
+      @wagons << wagon
+    rescue => e
+      puts "Ошибка: #{e.message}"
+      retry
+  end
+
   def add_station_to_route
     select_entity(@routes)
     puts "Введите номер станции для добавления: "
@@ -107,6 +127,24 @@ class Main
     @selected_train.remove_wagon(wagon)
   end
 
+  def occupy_space_in_wagon
+    select_entity(@trains)
+    puts "Номер вагона: "
+    wagon = @selected_train.wagons[gets.to_i - 1]
+
+    if wagon.type == :passenger
+      wagon.take_seat
+      puts "Занято одно место"
+    else
+      volume = gets.to_f
+    wagon.take_volume(volume)
+      puts "Занято #{volume} объёма"
+    end
+
+    rescue => e
+      puts "Ошибка: #{e.message}"
+  end
+
   def move_train
     select_entity(@trains)
     puts "Выберите направление (1 - вперед, 2 - назад): "
@@ -121,15 +159,10 @@ class Main
 
   def show_info
     @stations.each do |station|
-      puts "\nСтанция #{station.title}:\n"
-      if station.trains.empty?
-        puts "Поездов нет"
-      else
-        station.trains.each do |train|
-          puts "Поезд №#{train.number} (#{train.type}), вагонов: #{train.wagons.size}\n"
-        end
-      end
+      puts "\nСтанция #{station.title}:"
+      station.trains.empty? ? puts "- Поездов нет" : show_trains(station)
     end
+  end
   end
 
   def select_entity(collection)
@@ -143,5 +176,20 @@ class Main
     end
     entity_index = gets.chomp.to_i - 1
     @selected_entity = collection[entity_index]
+  end
+
+  def show_trains(station)
+    station.each_train do |train|
+      puts "- Поезд №#{train.number} (#{train.type}), вагонов: #{train.wagons.size}"
+      train.each_wagon { |wagon| show_wagon_info(train.type, wagon) }
+    end
+  end
+
+  def show_wagon_info(train_type, wagon)
+    wagon_info = train_type == :passenger ?
+      "свободно мест: #{wagon.free_seats}, занято: #{wagon.occupied_seats}" :
+      "свободный объем: #{wagon.free_volume}, занято: #{wagon.occupied_volume}"
+
+    puts "-- Вагон #{wagon.object_id}: #{wagon_info}"
   end
 end
