@@ -1,19 +1,13 @@
 class CargoWagon < Wagon
-  attr_reader :volume, :volume_busy
+  alias_method :used_volume, :used_place
+  alias_method :total_volume, :total_place
+  public :used_volume, :total_volume
 
-  def initialize(volume)
-    super('cargo')
-    @volume = volume
-    @volume_busy = 0
+  def initialize(total_volume)
+    super('cargo', total_volume)
   end
 
   def take_volume(volume)
-    raise 'Вагон полностью заполнен' if @volume_busy == @volume
-    raise "В вагоне осталось только #{available_volume}" if volume > available_volume
-    @volume_busy += volume
-  end
-
-  def available_volume
-    @volume - @volume_busy
+    take_place(volume)
   end
 end

@@ -1,18 +1,13 @@
 class PassengerWagon < Wagon
-  attr_reader :seats, :seats_busy
+  alias_method :busy_seats, :used_place
+  alias_method :total_seats, :total_place
+  public :busy_seats, :total_seats
 
   def initialize(seats)
-    super('passenger')
-    @seats = seats
-    @seats_busy = 0
+    super('passenger', seats)
   end
 
   def take_seat
-    raise 'В вагоне не осталось свободных мест' unless @seats_busy <= @seats
-    @seats_busy += 1
-  end
-
-  def available_seats
-    @seats - @seats_busy
+    take_place(1)
   end
 end
